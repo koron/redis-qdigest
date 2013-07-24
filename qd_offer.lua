@@ -17,8 +17,20 @@ local function extendCapacity(key, value)
   -- TODO:
 end
 
-local function compress(key, id, factor)
+local function compressUpward(key, id, factor)
   -- TODO:
+end
+
+local function compressFully(key, id, factor)
+  -- TODO:
+end
+
+local function compress(key, id, factor)
+  compressUpward(key, id, factor)
+  local size = redis.call('HLEN', key) - 3
+  if size > 3 * factor then
+    compressFully(key, id, factor)
+  end
 end
 
 local function qd_offer(key, value)
