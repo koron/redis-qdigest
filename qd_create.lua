@@ -2,21 +2,20 @@
 
 USAGE:
 
-    redis-cli --eval qd_create.lua , {name} {factor}
+    redis-cli --eval qd_create.lua {name} , {factor}
 
-*   `name` - Name of a qdigest instance.
+*   `name` - Name of a qdigest instance: used as a redis key.
 *   `factor` - Compression factor.
 
 --]]
 
-local function qd_create(name, factor)
-  local key_info = 'qdigest_' + name + '_info'
-  local key_data = 'qdigest_' + name + '_data'
-  if redis.call('EXISTS', key_info) then
+local function qd_create(key, factor)
+  if redis.call('EXISTS', key) then
     return 0
+  else
+    redis.call('HMSET', key, 'size', 0, 'capacity', 1, 'factor', factor)
+    return 1
   end
-  redis.call('HSET', key_info, 'size', 0, 'capacity', 1, 'factor', factor)
-  redis.call('DEL', key_data)
 end
 
-return qd_create(ARGV[1], tonumber(ARGV[2]))
+return qd_create(KEY[1], tonumber(ARGV[1]))
