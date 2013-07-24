@@ -13,9 +13,60 @@ local function get_data(key)
   return redis.call('HGETALL', key)
 end
 
+local function isLeaf(data, id)
+  return id > data.capacity
+end
+
+local function leftChild(id)
+  return id * 2
+end
+
+local function rightChild(id)
+  return id * 2 + 1
+end
+
+local function leaf2value(data, id)
+  return id - capacity
+end
+
+local function rangeLeft(data, id)
+  while not isLeaf(data, id) do
+    id = leftChild(id)
+  end
+  return leaf2value(data, id)
+end
+
+local function rangeRight(data, key)
+  while not isLeaf(data, id) do
+    id = rightChild(id)
+  end
+  return leaf2value(data, id)
+end
+
+local function cmp_ranges(a, b)
+  local ra, sa = a[2], a[2] - a[1]
+  local rb, sb = b[2], b[2] - b[1]
+  if ra < rb then
+    return -1
+  elseif ra > rb then
+    return 1
+  elseif sa < sb then
+    return -1
+  elseif sa > sb then
+    return 1
+  else
+    return 0
+  end
+end
+
 local function get_sorted_ranges(data)
   local r = {}
-  -- TODO:
+  for k, v in pairs(data) do
+    if type(k) == 'number' then
+      table.insert(r, { rangeLeft(data, key), rangeRight(data, key), v })
+    end
+  end
+  table.sort(r, cmp_ranges)
   return r
 end
 
@@ -23,11 +74,11 @@ local function qd_quantile(key, q)
   local data = get_data(key)
   local ranges = get_sorted_ranges(data)
   local threshold = data.size * q
-  local i, v, curr = 0
+  local curr = 0
   for i, v in ipairs(ranges) do
-    curr += v[2]
+    curr += v[3]
     if curr > threshold then
-      return v[1]
+      return v[2]
     end
   end
   return ranges[#ranges][2]
