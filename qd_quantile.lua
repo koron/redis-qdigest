@@ -26,7 +26,7 @@ local function rightChild(id)
 end
 
 local function leaf2value(data, id)
-  return id - capacity
+  return id - capacity - 1
 end
 
 local function rangeLeft(data, id)
