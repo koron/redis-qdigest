@@ -2,3 +2,10 @@
 
 QDigest is quantile estimator.  It is introduced in [stream-lib project](https://github.com/clearspring/stream-lib).
 The goal of this project is implement QDigest for Redis using lua script.
+
+## Lua scripts
+
+*   `qd_create.lua` - Create a new qdigest instance with a compress factor.
+*   `qd_offer.lua` - Offer a value.
+*   `qd_quantile.lua` - Get quantile
+*   `qd_drop.lua` - Drop a qdigest instance.
