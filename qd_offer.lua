@@ -17,12 +17,13 @@ local function extendCapacity(key, value)
   -- TODO:
 end
 
-local function compress(key, id)
+local function compress(key, id, factor)
   -- TODO:
 end
 
 local function qd_offer(key, value)
-  local capacity = redis.call('HGET', key, 'capacity')
+  local info = redis.call('HGET', key, 'capacity', 'factor')
+  local capacity, factor = info[1], info[2]
   if value < 0 then
     return 0
   elseif value > capacity then
@@ -31,7 +32,7 @@ local function qd_offer(key, value)
   local id = value2leaf(capacity, value)
   redis.call('HINCRBY', key, id, 1)
   redis.call('HINCRBY', key, 'size', 1)
-  compress(key, id)
+  compress(key, id, factor)
   return 1
 end
 
