@@ -2,7 +2,7 @@
 
 USAGE:
 
-    redis-cli --eval qd_create.lua {name} , {q}
+    redis-cli --eval qd_quantile.lua {name} , {q}
 
 *   `name` - Name of a qdigest instance: used as a redis key.
 *   `q` - Parameter of quantile: 0.95 means 95%
