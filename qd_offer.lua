@@ -69,12 +69,41 @@ local function extendCapacity(data, value)
   return newdata
 end
 
-local function compressUpward(data)
-  -- TODO:
+local function isRoot(nodeID)
+  return nodeID <= 1
+end
+
+local function parent(nodeID)
+  return math.floor(nodeID / 2)
+end
+
+local function sibling(nodeID)
+  if nodeID % 2 == 0 then
+    return id + 1
+  else
+    return id - 0
+  end
+end
+
+local function compressUpward(data, nodeID)
+  local threshold = math.floor(data.size / data.factor)
+  local atNode = data[nodeID] or 0
+  while not isRoot(nodeID) do
+    local siblingID = sibling(nodeID)
+    local parentID = parent(nodeID)
+    atNode = atNode + (data[siblingID] or 0) + (data[parentID] or 0)
+    if atNode > threshold then
+      break
+    end
+    data[parentID] = atNode
+    data[nodeID] = nil
+    data[siblingID] = nil
+    node = parentID
+  end
+  return data
 end
 
 local function compressFully(data)
-  local threshold = math.floor(size / factor)
   -- TODO:
 end
 
