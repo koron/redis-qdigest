@@ -27,8 +27,16 @@ end
 
 local function set(key, data)
   redis.call('DEL', key)
-  -- TODO: fix method to call HMSET
-  redis.call('HMSET', key, data)
+  redis.call('HMSET', key, kvunpack(data))
+end
+
+local function kvunpack(t)
+  local r = {}
+  for k, v in pairs(t) do
+    table.insert(r, k)
+    table.insert(r, v)
+  end
+  return unpack(r)
 end
 
 local function getDataKeys(data)
