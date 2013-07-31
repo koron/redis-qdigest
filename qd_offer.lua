@@ -9,27 +9,6 @@ USAGE:
 
 --]]
 
-local function value2leaf(capacity, value)
-  return value + capacity + 1
-end
-
-local function getNewCapacity(value)
-  capacity = 1
-  while capacity < value do
-    capacity = capacity * 2
-  end
-  return capacity
-end
-
-local function get(key)
-  return redis.call('HGETALL', key)
-end
-
-local function set(key, data)
-  redis.call('DEL', key)
-  redis.call('HMSET', key, kvunpack(data))
-end
-
 local function kvunpack(t)
   local r = {}
   for k, v in pairs(t) do
@@ -37,6 +16,27 @@ local function kvunpack(t)
     table.insert(r, v)
   end
   return unpack(r)
+end
+
+local function getData(key)
+  return redis.call('HGETALL', key)
+end
+
+local function setData(key, data)
+  redis.call('DEL', key)
+  redis.call('HMSET', key, kvunpack(data))
+end
+
+local function value2leaf(capacity, value)
+  return value + data.capacity + 1
+end
+
+local function getNewCapacity(value)
+  local capacity = 1
+  while capacity <= value do
+    capacity = capacity * 2
+  end
+  return capacity
 end
 
 local function getDataKeys(data)
@@ -51,61 +51,56 @@ local function getDataKeys(data)
   return keys
 end
 
-local function extendCapacity(key, value, capacity)
+local function extendCapacity(data, value)
+  local newdata = {}
   local newCapacity = getNewCapacity(value)
   local scaleR = newCapacity / capacity - 1
   local scaleL = 1
-  local data = get(key)
-  local keys = getDataKeys(data)
-  local newdata = {}
-  for i, k in ipairs(keys) do
+  for i, k in ipairs(getDataKeys(data)) do
     while scaleL <= k / 2 do
       scaleL = scaleL * 2
     end
     newdata[k + scaleL * scaleR] = data[k]
   end
-  newdata['capacity'] = data['capacity']
+  newdata['capacity'] = newCapacity
   newdata['factor'] = data['factor']
   newdata['size'] = data['size']
   compressDataFully(newdata)
-  set(key, data)
+  return newdata
 end
 
-local function compressUpward(key, id, factor)
+local function compressUpward(data)
   -- TODO:
 end
 
-local function compressFully(key)
-  local data = get(key)
-  compressDataFully(data)
-  set(key, data)
-end
-
-local function compressDataFully(data)
+local function compressFully(data)
+  local threshold = math.floor(size / factor)
   -- TODO:
 end
 
-local function compress(key, id, factor)
-  compressUpward(key, id, factor)
-  local size = redis.call('HLEN', key) - 3
-  if size > 3 * factor then
-    compressFully(key)
+local function compress(data)
+  data = compressUpward(data)
+  local count = #getDataKeys(data)
+  if count > 3 * data.factor then
+    data = compressFully(data)
   end
+  return data
 end
 
 local function qd_offer(key, value)
-  local info = redis.call('HGET', key, 'capacity', 'factor')
-  local capacity, factor = info[1], info[2]
   if value < 0 then
     return 0
-  elseif value > capacity then
-    extendCapacity(key, value, capacity)
   end
-  local id = value2leaf(capacity, value)
-  redis.call('HINCRBY', key, id, 1)
-  redis.call('HINCRBY', key, 'size', 1)
-  compress(key, id, factor)
+  local data = getData(key)
+  if value > data.capacity then
+    data = extendCapacity(data, value)
+  end
+  local id = value2leaf(data, value)
+  data[id] = (data[id] or 0) + 1
+  data.size = data.size + 1
+  data = compress(data)
+  setData(key, data)
   return 1
 end
 
-return qd_offer(KEY[1], ARGV[1])
+return qd_offer2(KEY[1], ARGV[1])
