@@ -27,8 +27,8 @@ local function setData(key, data)
   redis.call('HMSET', key, kvunpack(data))
 end
 
-local function value2leaf(capacity, value)
-  return value + data.capacity + 1
+local function value2leaf(data, value)
+  return value + data.capacity
 end
 
 local function getNewCapacity(value)
@@ -51,24 +51,6 @@ local function getDataKeys(data)
   return keys
 end
 
-local function extendCapacity(data, value)
-  local newdata = {}
-  local newCapacity = getNewCapacity(value)
-  local scaleR = newCapacity / capacity - 1
-  local scaleL = 1
-  for i, k in ipairs(getDataKeys(data)) do
-    while scaleL <= k / 2 do
-      scaleL = scaleL * 2
-    end
-    newdata[k + scaleL * scaleR] = data[k]
-  end
-  newdata['capacity'] = newCapacity
-  newdata['factor'] = data['factor']
-  newdata['size'] = data['size']
-  compressDataFully(newdata)
-  return newdata
-end
-
 local function isRoot(nodeID)
   return nodeID <= 1
 end
@@ -79,9 +61,9 @@ end
 
 local function sibling(nodeID)
   if nodeID % 2 == 0 then
-    return id + 1
+    return nodeID + 1
   else
-    return id - 0
+    return nodeID - 0
   end
 end
 
@@ -108,10 +90,11 @@ local function compressFully(data)
   for i, k in ipairs(keys) do
     compressUpward(data, k)
   end
+  return data
 end
 
-local function compress(data)
-  data = compressUpward(data)
+local function compress(data, nodeID)
+  data = compressUpward(data, nodeID)
   local count = #getDataKeys(data)
   if count > 3 * data.factor then
     data = compressFully(data)
@@ -119,18 +102,35 @@ local function compress(data)
   return data
 end
 
+local function extendCapacity(data, value)
+  local newdata = {}
+  local newCapacity = getNewCapacity(value)
+  local scaleR = newCapacity / data.capacity - 1
+  local scaleL = 1
+  for i, k in ipairs(getDataKeys(data)) do
+    while scaleL <= k / 2 do
+      scaleL = scaleL * 2
+    end
+    newdata[k + scaleL * scaleR] = data[k]
+  end
+  newdata['capacity'] = newCapacity
+  newdata['factor'] = data['factor']
+  newdata['size'] = data['size']
+  return compressFully(newdata)
+end
+
 local function qd_offer(key, value)
   if value < 0 then
     return 0
   end
   local data = getData(key)
-  if value > data.capacity then
+  if value >= data.capacity then
     data = extendCapacity(data, value)
   end
   local id = value2leaf(data, value)
   data[id] = (data[id] or 0) + 1
   data.size = data.size + 1
-  data = compress(data)
+  data = compress(data, id)
   setData(key, data)
   return 1
 end
