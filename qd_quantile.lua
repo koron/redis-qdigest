@@ -14,7 +14,7 @@ local function get_data(key)
 end
 
 local function isLeaf(data, id)
-  return id > data.capacity
+  return id >= data.capacity
 end
 
 local function leftChild(id)
@@ -26,7 +26,7 @@ local function rightChild(id)
 end
 
 local function leaf2value(data, id)
-  return id - data.capacity - 1
+  return id - data.capacity
 end
 
 local function rangeLeft(data, id)

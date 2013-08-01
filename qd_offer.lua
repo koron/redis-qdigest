@@ -63,7 +63,7 @@ local function sibling(nodeID)
   if nodeID % 2 == 0 then
     return nodeID + 1
   else
-    return nodeID - 0
+    return nodeID - 1
   end
 end
 
@@ -80,7 +80,7 @@ local function compressUpward(data, nodeID)
     data[parentID] = atNode
     data[nodeID] = nil
     data[siblingID] = nil
-    node = parentID
+    nodeID = parentID
   end
   return data
 end
@@ -105,10 +105,11 @@ end
 local function extendCapacity(data, value)
   local newdata = {}
   local newCapacity = getNewCapacity(value)
-  local scaleR = newCapacity / data.capacity - 1
+  local scaleR = math.floor(newCapacity / data.capacity) - 1
   local scaleL = 1
   for i, k in ipairs(getDataKeys(data)) do
-    while scaleL <= k / 2 do
+    local k2 = math.floor(k / 2)
+    while scaleL <= k2 do
       scaleL = scaleL * 2
     end
     newdata[k + scaleL * scaleR] = data[k]
