@@ -104,7 +104,10 @@ local function compressUpward(data, nodeID)
 end
 
 local function compressFully(data)
-  -- TODO:
+  local keys = getDataKeys(data)
+  for i, k in ipairs(keys) do
+    compressUpward(data, k)
+  end
 end
 
 local function compress(data)
