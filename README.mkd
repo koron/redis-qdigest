@@ -9,3 +9,52 @@ The goal of this project is implement QDigest for Redis using lua script.
 *   `qd_offer.lua` - Offer a value.
 *   `qd_quantile.lua` - Get quantile
 *   `qd_drop.lua` - Drop a qdigest instance.
+
+## How to use on CLI
+
+1.  Create a QDigest object.
+
+        $ redis-cli --eval qd_create.lua foo , 100
+
+    USAGE: `redis-cli --eval qd_create.lua {NAME} , {FACTOR}`
+
+    *   NAME - Name for new QDigest object.
+    *   FACTOR - Factor of max memory for this QDigest object.
+
+2.  Offer a value to a QDigest object.
+
+        $ redis-cli --eval qd_offer.lua foo , 1
+
+    USAGE: `redis-cli --eval qd_offer.lua {NAME} , {VALUE}`
+
+    *   NAME - Name of target QDigest object.
+    *   VALUE - Value to be offer to target QDigest object.
+
+    You can offer a value multiple times to a QDigest object.
+
+3.  Get a value of quantile.
+
+        $ redis-cli --eval qd_quantile.lua foo , 0.95
+
+    USAGE: `redis-cli --eval qd_quantile.lua {NAME} , {QUANTILE}`
+
+    *   NAME - Name of target QDigest object.
+    *   QUANTILE - Quantile of value to get. (between 0.0 and 1.0)
+
+4.  Drop a QDigest object.
+
+        $ redis-cli --eval qd_drop.lua foo
+
+    USAGE: `redis-cli --eval qd_drop.lua {NAME} , {QUANTILE}`
+
+    *   NAME - Name of target QDigest object.
+
+## Load all lua scripts to Redis
+
+```sh
+$ ./load-qdigest-scripts.sh
+qd_create.lua: f52f9ee3cac14de597ac5857e00b61407a040144
+qd_drop.lua: b1f7d0a869bb588a4dbddc9dae731d4a4256b16f
+qd_offer.lua: 8eb1dfc0a091a3bffe683ce37898a8977832ce3d
+qd_quantile.lua: f5215e0f2d6730a7d1f767e4668b16d9c68317d6
+```
