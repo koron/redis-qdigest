@@ -9,8 +9,27 @@ USAGE:
 
 --]]
 
-local function get_data(key)
-  return redis.call('HGETALL', key)
+local function tonumber_smart(v)
+  local n = tonumber(v)
+  if n == nil then
+    return v
+  else
+    return n
+  end
+end
+
+local function getData(key)
+  local r = {}
+  local k = nil
+  for i, v in ipairs(redis.call('HGETALL', key)) do
+    if k == nil then
+      k = tonumber_smart(v)
+    else
+      r[k] = tonumber_smart(v)
+      k = nil
+    end
+  end
+  return r
 end
 
 local function isLeaf(data, id)
@@ -71,7 +90,7 @@ local function get_sorted_ranges(data)
 end
 
 local function qd_quantile(key, q)
-  local data = get_data(key)
+  local data = getData(key)
   local ranges = get_sorted_ranges(data)
   local threshold = data.size * q
   local curr = 0
@@ -84,4 +103,4 @@ local function qd_quantile(key, q)
   return ranges[#ranges][2]
 end
 
-return qd_quantile(KEY[1], ARGV[1])
+return qd_quantile(KEYS[1], tonumber(ARGV[1]))

@@ -12,4 +12,4 @@ local function qd_drop(key)
   return redis.call('DEL', key)
 end
 
-return qd_drop(KEY[1])
+return qd_drop(KEYS[1])

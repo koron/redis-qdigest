@@ -18,8 +18,27 @@ local function kvunpack(t)
   return unpack(r)
 end
 
+local function tonumber_smart(v)
+  local n = tonumber(v)
+  if n == nil then
+    return v
+  else
+    return n
+  end
+end
+
 local function getData(key)
-  return redis.call('HGETALL', key)
+  local r = {}
+  local k = nil
+  for i, v in ipairs(redis.call('HGETALL', key)) do
+    if k == nil then
+      k = tonumber_smart(v)
+    else
+      r[k] = tonumber_smart(v)
+      k = nil
+    end
+  end
+  return r
 end
 
 local function setData(key, data)
@@ -136,4 +155,4 @@ local function qd_offer(key, value)
   return 1
 end
 
-return qd_offer2(KEY[1], ARGV[1])
+return qd_offer(KEYS[1], tonumber(ARGV[1]))

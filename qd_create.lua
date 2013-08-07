@@ -10,7 +10,7 @@ USAGE:
 --]]
 
 local function qd_create(key, factor)
-  if redis.call('EXISTS', key) then
+  if redis.call('EXISTS', key) ~= 0 then
     return 0
   else
     redis.call('HMSET', key, 'size', 0, 'capacity', 1, 'factor', factor)
@@ -18,4 +18,4 @@ local function qd_create(key, factor)
   end
 end
 
-return qd_create(KEY[1], tonumber(ARGV[1]))
+return qd_create(KEYS[1], tonumber(ARGV[1]))
