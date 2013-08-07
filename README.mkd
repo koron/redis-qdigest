@@ -17,7 +17,6 @@ The goal of this project is implement QDigest for Redis using lua script.
         $ redis-cli --eval qd_create.lua foo , 100
 
     USAGE: `redis-cli --eval qd_create.lua {NAME} , {FACTOR}`
-
     *   NAME - Name for new QDigest object.
     *   FACTOR - Factor of max memory for this QDigest object.
 
