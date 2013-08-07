@@ -26,7 +26,6 @@ The goal of this project is implement QDigest for Redis using lua script.
         $ redis-cli --eval qd_offer.lua foo , 1
 
     USAGE: `redis-cli --eval qd_offer.lua {NAME} , {VALUE}`
-
     *   NAME - Name of target QDigest object.
     *   VALUE - Value to be offer to target QDigest object.
 
@@ -37,7 +36,6 @@ The goal of this project is implement QDigest for Redis using lua script.
         $ redis-cli --eval qd_quantile.lua foo , 0.95
 
     USAGE: `redis-cli --eval qd_quantile.lua {NAME} , {QUANTILE}`
-
     *   NAME - Name of target QDigest object.
     *   QUANTILE - Quantile of value to get. (between 0.0 and 1.0)
 
@@ -46,7 +44,6 @@ The goal of this project is implement QDigest for Redis using lua script.
         $ redis-cli --eval qd_drop.lua foo
 
     USAGE: `redis-cli --eval qd_drop.lua {NAME} , {QUANTILE}`
-
     *   NAME - Name of target QDigest object.
 
 ## Load all lua scripts to Redis
