@@ -10,7 +10,7 @@ public final class Main
 {
     public static void main(String[] args)
     {
-        runOnHost("192.168.1.129");
+        runOnHost("127.0.0.1");
     }
 
     public static void runOnHost(String host)
