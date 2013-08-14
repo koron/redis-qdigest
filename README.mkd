@@ -15,7 +15,7 @@ Copy `src/main/java` and `src/main/resources` directories into your project.
 
         $ gradle build
 
-2.  Copy `build/libs/redis-qdigest-X.X.jar` into your project libs.
+2.  Copy `build/libs/redis-qdigest-X.X.jar` into your project's `libs/`.
 
     Where `X.X` is replaced by version.
 
