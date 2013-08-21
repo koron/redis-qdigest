@@ -57,14 +57,14 @@ public final class QDigest
     }
 
     /**
-     * Offer a value.
+     * Offer values.
      *
-     * @param value Value to offer.
+     * @param values Values to offer.
      */
-    public boolean offer(long value)
+    public boolean offer(long... values)
         throws QDigestException
     {
-        return QDigestAdapter.offer(this.jedis.get(), this.key, value);
+        return QDigestAdapter.offer(this.jedis.get(), this.key, values);
     }
 
     /**

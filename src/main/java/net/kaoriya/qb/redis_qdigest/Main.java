@@ -37,10 +37,7 @@ public final class Main
         QDigest qd = QDigest.getInstance(jedis, "foo", 20);
         // Offer values to QDigest.
         qd.offer(10);
-        qd.offer(20);
-        qd.offer(30);
-        qd.offer(40);
-        qd.offer(50);
+        qd.offer(20, 30, 40, 50);
         // Get quantiles: 0%, 50%, 100%
         System.out.println("qd(0.0f)=" + qd.quantile(0.0f));
         System.out.println("qd(0.5f)=" + qd.quantile(0.5f));

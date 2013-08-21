@@ -63,12 +63,18 @@ public final class QDigestAdapter
 
     }
 
-    public static boolean offer(Jedis jedis, String key, long value)
+    public static boolean offer(Jedis jedis, String key, long... values)
         throws QDigestException
     {
+        // build arguments.
+        String[] args = new String[values.length + 1];
+        args[0] = key;
+        for (int i = 0; i < values.length; ++i) {
+            args[i + 1] = Long.toString(values[i]);
+        }
+        // invoke lua script on Redis.
         try {
-            Long r = (Long)offerScript.eval(jedis, 1, key,
-                    Long.toString(value));
+            Long r = (Long)offerScript.eval(jedis, 1, args);
             return r != 0L ? true : false;
         } catch (RedisLuaException e) {
             throw new QDigestException(e);
