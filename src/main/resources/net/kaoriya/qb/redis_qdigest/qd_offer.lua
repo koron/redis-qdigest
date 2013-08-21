@@ -139,20 +139,30 @@ local function extendCapacity(data, value)
   return compressFully(newdata)
 end
 
-local function qd_offer(key, value)
-  if value < 0 then
-    return 0
-  end
-  local data = getData(key)
+local function offerValue(data, value)
   if value >= data.capacity then
     data = extendCapacity(data, value)
   end
   local id = value2leaf(data, value)
   data[id] = (data[id] or 0) + 1
   data.size = data.size + 1
-  data = compress(data, id)
-  setData(key, data)
-  return 1
+  return compress(data, id)
 end
 
-return qd_offer(KEYS[1], tonumber(ARGV[1]))
+local function qd_offer(key, values)
+  local count = 0
+  local data = getData(key)
+  for i, v in ipairs(values) do
+    local n = tonumber(v)
+    if n >= 0 then
+      data = offerValue(data, n)
+      count = count + 1
+    end
+  end
+  if count > 0 then
+    setData(key, data)
+  end
+  return count
+end
+
+return qd_offer(KEYS[1], ARGV)
